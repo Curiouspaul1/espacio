@@ -50,9 +50,31 @@ class Enemy(pygame.sprite.Sprite):
                 0
             )
         )
-        self.speed = random.randint(5, 15)
+        self.speed = random.randint(5, 10)
     
-    def update(self):
+    def update(self, all_missiles):
         self.rect.move_ip(0, self.speed)
         if self.rect.bottom < 0:
             self.kill()
+        if pygame.sprite.spritecollideany(self, all_missiles):
+            self.kill()
+
+
+class Missile(pygame.sprite.Sprite):
+    def __init__(self, player):
+        super().__init__()
+        self.surf = pygame.image.load('assets/missile1.png')
+        self.surf.set_colorkey((255, 255, 255), RLEACCEL)
+        self.rect = self.surf.get_rect(
+            center=(
+                player.rect.x+(self.surf.get_width()),
+                player.rect.y-(self.surf.get_height())
+            )
+        )
+        self.speed = 3
+
+    def update(self):
+        self.rect.move_ip(0, -self.speed)
+        if self.rect.top < 0:
+            self.kill()
+    
