@@ -1,7 +1,7 @@
 import pygame
 from pygame.locals import (
     K_DOWN, K_UP, K_LEFT,
-    K_ESCAPE, K_RIGHT, RLEACCEL
+    K_ESCAPE, K_RIGHT, RLEACCEL, K_1
 )
 from utils import Player, Enemy
 
@@ -53,6 +53,11 @@ while running:
 
     #  update new enemy sprites
     all_enemies.update()
+
+    # collision detection
+    if pygame.sprite.spritecollideany(player, all_enemies):
+        player.kill()
+        running = False
     
     pygame.display.flip()
 

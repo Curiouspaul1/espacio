@@ -46,12 +46,13 @@ class Enemy(pygame.sprite.Sprite):
         self.surf = pygame.image.load('assets/alien01.png').convert()
         self.rect = self.surf.get_rect(
             center = (
-                0,
-                random.randint(self.game_screen[1]/2, self.game_screen[1]*0.8)
+                random.randint(0, self.game_screen[0]),
+                0
             )
         )
-        self.speed = 5
+        self.speed = random.randint(5, 15)
     
     def update(self):
         self.rect.move_ip(0, self.speed)
-        self.rect.move_ip(self.speed, 0)
+        if self.rect.bottom < 0:
+            self.kill()
