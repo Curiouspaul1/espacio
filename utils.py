@@ -43,14 +43,17 @@ class Enemy(pygame.sprite.Sprite):
     def __init__(self, game_screen):
         super().__init__()
         self.game_screen = game_screen
+        self.position = {'left':0, 'right':self.game_screen[0]}
         self.surf = pygame.image.load('assets/alien01.png').convert()
+        self.xpos = self.position[random.choice(list(self.position.keys()))]
+        #print(self.xpos)
         self.rect = self.surf.get_rect(
             center = (
-                random.randint(0, self.game_screen[0]),
-                0
+                self.xpos,
+                random.randint(0, self.game_screen[1]/4)
             )
         )
-        self.speed = random.randint(5, 10)
+        self.speed = random.randint(2, 5)
     
     def update(self, all_missiles):
         self.rect.move_ip(0, self.speed)
@@ -71,7 +74,7 @@ class Missile(pygame.sprite.Sprite):
                 player.rect.y-(self.surf.get_height())
             )
         )
-        self.speed = 3
+        self.speed = 4
 
     def update(self):
         self.rect.move_ip(0, -self.speed)
