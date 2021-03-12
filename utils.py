@@ -60,6 +60,13 @@ class Enemy(pygame.sprite.Sprite):
         if self.rect.bottom < 0:
             self.kill()
         if pygame.sprite.spritecollideany(self, all_missiles):
+            self.surf = pygame.image.load('assets/explosion1.png').convert()
+            self.rect = self.surf.get_rect(
+                center=(
+                    self.rect.x,
+                    self.rect.y
+                )
+            )
             self.kill()
 
 
