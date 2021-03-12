@@ -27,6 +27,10 @@ player = Player(game_screen=size)
 ADDENEMY = pygame.USEREVENT + 1
 pygame.time.set_timer(ADDENEMY, 500)
 
+#initializing a sound mixer for 16-bit 44100hz steoreo
+pygame.mixer.pre_init(44100, 16, 2, 4096)
+gunShotSound = pygame.mixer.Sound('assets\Gun+Silencer.wav')
+
 # Game loop
 running = True
 
@@ -42,6 +46,7 @@ while running:
                 missile = Missile(player=player)
                 all_sprites.add(missile)
                 all_missiles.add(missile)
+                gunShotSound.play()#play tho sound
         elif event.type == pygame.QUIT:
             running = False
         elif event.type == ADDENEMY:
@@ -61,14 +66,14 @@ while running:
     player.update(pressed_keys=keys)
 
     #  update new enemy sprites
-    all_enemies.update(all_missiles=all_missiles)
+    all_enemies.update(all_missiles)#using keyword arguments produced errors on pycharm
 
     # update missiles
     all_missiles.update()
 
     # collision detection
     if pygame.sprite.spritecollideany(player, all_enemies):
-        #player.kill()
+        player.kill()
         #running = False
         pass
 
