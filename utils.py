@@ -43,22 +43,30 @@ class Enemy(pygame.sprite.Sprite):
     def __init__(self, game_screen):
         super().__init__()
         self.game_screen = game_screen
-        self.position = {'left':0, 'right':self.game_screen[0]}
+        #self.position = {'left':0, 'right':self.game_screen[0]}
         self.surf = pygame.image.load('assets/alien01.png').convert()
-        self.xpos = self.position[random.choice(list(self.position.keys()))]
+        #self.xpos = self.position[random.choice(list(self.position.keys()))]  #this line wasn't used, so i commented it out
         #print(self.xpos)
         self.rect = self.surf.get_rect(
             center = (
-                self.xpos,
-                random.randint(0, self.game_screen[1]/4)
+                random.randint(0, game_screen[0]), #changed the player default x position
+                0   #made it so that the enemies come out the top of the screen
             )
         )
-        self.speed = random.randint(2, 5)
+        self.speed_y = 2
+        self.speed_x = random.choice([1, -1, 0])#the x-movement can either be forward, backward or stagnant
     
     def update(self, all_missiles):
-        self.rect.move_ip(0, self.speed)
+        #i also changed this function...so that diagonally moving enemies wont just falloff
+        #instead hey continue on the other side
+
+        self.rect.move_ip(self.speed_x, self.speed_y)
         if self.rect.bottom < 0:
             self.kill()
+        if self.rect.x > self.game_screen[0]:
+            self.rect.x = 0
+        if self.rect.x < 0:
+            self.rect.x = self.game_screen[0]
         if pygame.sprite.spritecollideany(self, all_missiles):
             self.surf = pygame.image.load('assets/explosion1.png').convert()
             self.rect = self.surf.get_rect(
