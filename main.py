@@ -1,10 +1,11 @@
 import pygame
 from pygame.locals import (
     K_DOWN, K_UP, K_LEFT,
-    K_ESCAPE, K_RIGHT, RLEACCEL, K_1
+    K_ESCAPE, K_RIGHT, RLEACCEL, K_1,
+    MOUSEBUTTONDOWN
 )
 from utils import (
-    Player, Enemy, Missile
+    Player, Enemy, Missile, explosions
 )
 
 # initialize pygame
@@ -20,16 +21,17 @@ all_sprites = pygame.sprite.Group()
 all_missiles = pygame.sprite.Group()
 all_enemies = pygame.sprite.Group()
 
+
 # create player instance
 player = Player(game_screen=size)
 
 # create custom game events
 ADDENEMY = pygame.USEREVENT + 1
-pygame.time.set_timer(ADDENEMY, 500)
+pygame.time.set_timer(ADDENEMY, 1200)
 
 #initializing a sound mixer for 16-bit 44100hz steoreo
 pygame.mixer.pre_init(44100, 16, 2, 4096)
-gunShotSound = pygame.mixer.Sound('assets\Gun+Silencer.wav')
+gunShotSound = pygame.mixer.Sound('assets/Gun+Silencer.wav')
 
 # Game loop
 running = True
@@ -70,6 +72,9 @@ while running:
 
     # update missiles
     all_missiles.update()
+
+    explosions.draw(screen)
+    explosions.update()
 
     # collision detection
     if pygame.sprite.spritecollideany(player, all_enemies):

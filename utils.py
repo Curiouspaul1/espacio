@@ -5,6 +5,9 @@ from pygame.locals import (
     RLEACCEL
 )
 
+explosions = pygame.sprite.Group()
+
+
 class Player(pygame.sprite.Sprite):
     def __init__(self, game_screen):
         super().__init__()
@@ -39,12 +42,43 @@ class Player(pygame.sprite.Sprite):
             self.rect.bottom = self.game_screen[1]
 
 
+#create Explosion class
+class Explosion(pygame.sprite.Sprite):
+	def __init__(self, x, y):
+		pygame.sprite.Sprite.__init__(self)
+		self.images = []
+		for num in range(1, 6):
+			img = pygame.image.load(f"assets/exp{num}.png")
+			img = pygame.transform.scale(img, (50, 50))
+			self.images.append(img)
+		self.index = 0
+		self.image = self.images[self.index]
+		self.rect = self.image.get_rect()
+		self.rect.center = [x, y]
+		self.counter = 0
+
+	def update(self):
+		explosion_speed = 4
+		#update explosion animation
+		self.counter += 1
+
+		if self.counter >= explosion_speed and self.index < len(self.images) - 1:
+			self.counter = 0
+			self.index += 1
+			self.image = self.images[self.index]
+
+		#if the animation is complete, reset animation index
+		if self.index >= len(self.images) - 1 and self.counter >= explosion_speed:
+			self.kill()
+
+
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, game_screen):
         super().__init__()
         self.game_screen = game_screen
         #self.position = {'left':0, 'right':self.game_screen[0]}
-        self.surf = pygame.image.load('assets/alien01.png').convert()
+        self.surf = pygame.image.load(f'assets/alien0{random.randint(1,4)}.png').convert()
+        self.surf.set_colorkey((0,  0, 0), RLEACCEL)
         #self.xpos = self.position[random.choice(list(self.position.keys()))]  #this line wasn't used, so i commented it out
         #print(self.xpos)
         self.rect = self.surf.get_rect(
@@ -53,7 +87,7 @@ class Enemy(pygame.sprite.Sprite):
                 0   #made it so that the enemies come out the top of the screen
             )
         )
-        self.speed_y = 2
+        self.speed_y = 1
         self.speed_x = random.choice([1, -1, 0])#the x-movement can either be forward, backward or stagnant
     
     def update(self, all_missiles):
@@ -68,15 +102,9 @@ class Enemy(pygame.sprite.Sprite):
         if self.rect.x < 0:
             self.rect.x = self.game_screen[0]
         if pygame.sprite.spritecollideany(self, all_missiles):
-            self.surf = pygame.image.load('assets/explosion1.png').convert()
-            self.rect = self.surf.get_rect(
-                center=(
-                    self.rect.x,
-                    self.rect.y
-                )
-            )
             self.kill()
-
+            explosion = Explosion(x=self.rect.x,y=self.rect.y)
+            explosions.add(explosion)
 
 class Missile(pygame.sprite.Sprite):
     def __init__(self, player):
@@ -95,4 +123,3 @@ class Missile(pygame.sprite.Sprite):
         self.rect.move_ip(0, -self.speed)
         if self.rect.top < 0:
             self.kill()
-    
