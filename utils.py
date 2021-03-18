@@ -5,8 +5,6 @@ from pygame.locals import (
     RLEACCEL
 )
 
-explosions = pygame.sprite.Group()
-
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, game_screen):
@@ -20,16 +18,17 @@ class Player(pygame.sprite.Sprite):
                 game_screen[1]-(self.surf.get_height())
             )
         )
+        self.lives = None
 
     def update(self, pressed_keys):
         if pressed_keys[K_RIGHT]:
-            self.rect.move_ip(3, 0)
+            self.rect.move_ip(10, 0)
         if pressed_keys[K_LEFT]:
-            self.rect.move_ip(-3, 0)
+            self.rect.move_ip(-10, 0)
         if  pressed_keys[K_UP]:
-            self.rect.move_ip(0, -3)
+            self.rect.move_ip(0, -10)
         if pressed_keys[K_DOWN]:
-            self.rect.move_ip(0, 3)
+            self.rect.move_ip(0, 10)
         
         # stop player from moving off screen
         if self.rect.left < 0:
@@ -87,8 +86,8 @@ class Enemy(pygame.sprite.Sprite):
                 0   #made it so that the enemies come out the top of the screen
             )
         )
-        self.speed_y = 1
-        self.speed_x = random.choice([1, -1, 0])#the x-movement can either be forward, backward or stagnant
+        self.speed_y = 3
+        self.speed_x = random.choice([3.5, -3.5, 0])#the x-movement can either be forward, backward or stagnant
     
     def update(self, all_missiles):
         #i also changed this function...so that diagonally moving enemies wont just falloff
@@ -101,10 +100,7 @@ class Enemy(pygame.sprite.Sprite):
             self.rect.x = 0
         if self.rect.x < 0:
             self.rect.x = self.game_screen[0]
-        if pygame.sprite.spritecollideany(self, all_missiles):
-            self.kill()
-            explosion = Explosion(x=self.rect.x,y=self.rect.y)
-            explosions.add(explosion)
+
 
 class Missile(pygame.sprite.Sprite):
     def __init__(self, player):
@@ -117,9 +113,20 @@ class Missile(pygame.sprite.Sprite):
                 player.rect.y-(self.surf.get_height())
             )
         )
-        self.speed = 4
+        self.speed = 14
 
     def update(self):
         self.rect.move_ip(0, -self.speed)
         if self.rect.top < 0:
             self.kill()
+
+
+class hearts(pygame.sprite.Sprite):
+    def __init__(self, pos):
+        super().__init__()
+        self.surf = pygame.image.load("assets/heart01.png").convert()
+        self.surf.set_colorkey((0, 0, 0), RLEACCEL)
+        self.rect = self.surf.get_rect(
+            center = pos
+        )
+        
