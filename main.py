@@ -21,16 +21,15 @@ all_sprites = pygame.sprite.Group()
 all_missiles = pygame.sprite.Group()
 all_enemies = pygame.sprite.Group()
 explosions = pygame.sprite.Group()
+enemy_beams = pygame.sprite.Group()
 
 # create player instance
 player = Player(game_screen=size)
 
-# create lives
-lives = [hearts(pos=(i, 20)) for i in range(10, 70, 20)]
-#player.life = 
-
 # create custom game events
 ADDENEMY = pygame.USEREVENT + 1
+SHOOTENEMYBEAMS = pygame.USEREVENT + 2
+pygame.time.set_timer(SHOOTENEMYBEAMS, 1400)
 pygame.time.set_timer(ADDENEMY, 1200)
 
 #initializing a sound mixer for 16-bit 44100hz steoreo
@@ -40,8 +39,11 @@ gunShotSound = pygame.mixer.Sound('assets/Gun+Silencer.wav')
 # Game loop
 running = True
 
+# create lives
+lives = [hearts(pos=(i, 20)) for i in range(10, 70, 20)]
+
 isPlayerkilled = False
-lives_left = True
+lives_left = False
 
 clock = pygame.time.Clock()
 
@@ -61,14 +63,19 @@ while running:
         elif event.type == ADDENEMY:
             enemy = Enemy(game_screen=size)
             all_enemies.add(enemy)
-            all_sprites.add(enemy)
+            enemy_beams.add(enemy.beam)
+            all_sprites.add(enemy, enemy.beam)
+        # if event.type == SHOOTENEMYBEAMS:
+        #     enemy_beams.update()
 
     if not isPlayerkilled:
         # add  player to sprite group
         all_sprites.add(player)
     
-    if lives_left:
-        all_sprites.add(lives)
+    all_sprites.add(lives)
+
+    if pygame.sprite.spritecollideany(player, all_enemies):
+        lives[-1].kill()
 
     # block transfer to game screen
     for i in all_sprites:
@@ -79,10 +86,13 @@ while running:
     player.update(pressed_keys=keys)
 
     #  update new enemy sprites
-    all_enemies.update(all_missiles)#using keyword arguments produced errors on pycharm
+    all_enemies.update()#using keyword arguments produced errors on pycharm
 
     # update missiles
     all_missiles.update()
+
+    # update beams
+    enemy_beams.update()
 
     # check to see if enemy collides with player missiles and explosion
     enemy_collide = pygame.sprite.groupcollide(
@@ -96,9 +106,6 @@ while running:
 
     explosions.draw(screen)
     explosions.update()
-
-    if pygame.sprite.spritecollideany(player, all_enemies):
-        lives[-1].kill()
 
     # # # check to see if player still has lives
     # if len(player.lives) == 0:
