@@ -6,6 +6,7 @@ from pygame.locals import (
 )
 
 
+
 class Player(pygame.sprite.Sprite):
     def __init__(self, game_screen):
         super().__init__()
@@ -18,7 +19,7 @@ class Player(pygame.sprite.Sprite):
                 game_screen[1]-(self.surf.get_height())
             )
         )
-        self.lives = None
+        self.life = None
 
     def update(self, pressed_keys):
         if pressed_keys[K_RIGHT]:
@@ -71,15 +72,36 @@ class Explosion(pygame.sprite.Sprite):
 			self.kill()
 
 
+class EnemyBeams(pygame.sprite.Sprite):
+    def __init__(self, enemy, game_screen):
+        super().__init__()
+        self.game_screen = game_screen
+        self.enemy = enemy
+        self.surf = pygame.image.load('assets/beams1.png')
+        self.rect = enemy.surf.get_rect(
+            center = (
+                enemy.rect.x+(self.surf.get_width()*2),
+                enemy.rect.y+(self.surf.get_height()*2)
+            )
+        )
+        self.speed = 14
+    
+    def update(self):
+        self.rect.center = (
+            self.enemy.rect.x+(self.surf.get_width()*2),
+            self.enemy.rect.y+(self.surf.get_height()*2)
+        )
+        self.rect.move_ip(0, self.speed)
+        if self.rect.bottom > self.game_screen[1]:
+            self.kill()
+
+
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, game_screen):
         super().__init__()
         self.game_screen = game_screen
-        #self.position = {'left':0, 'right':self.game_screen[0]}
         self.surf = pygame.image.load(f'assets/alien0{random.randint(1,4)}.png').convert()
         self.surf.set_colorkey((0,  0, 0), RLEACCEL)
-        #self.xpos = self.position[random.choice(list(self.position.keys()))]  #this line wasn't used, so i commented it out
-        #print(self.xpos)
         self.rect = self.surf.get_rect(
             center = (
                 random.randint(0, game_screen[0]), #changed the player default x position
@@ -88,8 +110,9 @@ class Enemy(pygame.sprite.Sprite):
         )
         self.speed_y = 3
         self.speed_x = random.choice([3.5, -3.5, 0])#the x-movement can either be forward, backward or stagnant
+        self.beam = EnemyBeams(enemy=self, game_screen=self.game_screen)
     
-    def update(self, all_missiles):
+    def update(self):
         #i also changed this function...so that diagonally moving enemies wont just falloff
         #instead hey continue on the other side
 
@@ -100,6 +123,7 @@ class Enemy(pygame.sprite.Sprite):
             self.rect.x = 0
         if self.rect.x < 0:
             self.rect.x = self.game_screen[0]
+        # self.beam.update()
 
 
 class Missile(pygame.sprite.Sprite):
@@ -129,4 +153,3 @@ class hearts(pygame.sprite.Sprite):
         self.rect = self.surf.get_rect(
             center = pos
         )
-        
