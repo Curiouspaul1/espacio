@@ -5,8 +5,10 @@ from pygame.locals import (
     MOUSEBUTTONDOWN
 )
 from utils import (
-    Player, Enemy, Missile, Explosion, hearts
+    Player, Enemy, Missile, Explosion, hearts, EnemyGroup,
+    enemy_beams
 )
+from helpers import spawnEnemies
 
 # initialize pygame
 pygame.init()
@@ -19,9 +21,8 @@ BACKGROUND = pygame.image.load('assets/stars2.jpg')
 # sprite groups
 all_sprites = pygame.sprite.Group()
 all_missiles = pygame.sprite.Group()
-all_enemies = pygame.sprite.Group()
+all_enemies =  EnemyGroup()
 explosions = pygame.sprite.Group()
-enemy_beams = pygame.sprite.Group()
 
 # create player instance
 player = Player(game_screen=size)
@@ -29,8 +30,8 @@ player = Player(game_screen=size)
 # create custom game events
 ADDENEMY = pygame.USEREVENT + 1
 SHOOTENEMYBEAMS = pygame.USEREVENT + 2
-pygame.time.set_timer(SHOOTENEMYBEAMS, 1400)
-pygame.time.set_timer(ADDENEMY, 1200)
+pygame.time.set_timer(SHOOTENEMYBEAMS, 5200)
+pygame.time.set_timer(ADDENEMY, 3000)
 
 #initializing a sound mixer for 16-bit 44100hz steoreo
 pygame.mixer.pre_init(44100, 16, 2, 4096)
@@ -61,12 +62,17 @@ while running:
         elif event.type == pygame.QUIT:
             running = False
         elif event.type == ADDENEMY:
-            enemy = Enemy(game_screen=size)
-            all_enemies.add(enemy)
-            enemy_beams.add(enemy.beam)
-            all_sprites.add(enemy, enemy.beam)
-        # if event.type == SHOOTENEMYBEAMS:
-        #     enemy_beams.update()
+            global enemies
+            enemies = spawnEnemies(size)
+            all_enemies.add(enemies)
+            all_sprites.add(enemies)
+        elif event.type == SHOOTENEMYBEAMS:
+            count = 1
+            while count < 4:
+                print(enemy.surf.get_rect())
+                enemy.generateBeams(pos=enemy.surf.get_rect())
+                count += 1
+            print("Done")
 
     if not isPlayerkilled:
         # add  player to sprite group
@@ -80,6 +86,13 @@ while running:
     # block transfer to game screen
     for i in all_sprites:
         screen.blit(i.surf, i.rect)
+    
+    # draw beams
+    for i in enemy_beams:
+        screen.blit(i.surf, i.rect)
+
+    # #update beams
+    enemy_beams.update()
 
     # check for movement
     keys = pygame.key.get_pressed()
@@ -91,8 +104,6 @@ while running:
     # update missiles
     all_missiles.update()
 
-    # update beams
-    enemy_beams.update()
 
     # check to see if enemy collides with player missiles and explosion
     enemy_collide = pygame.sprite.groupcollide(

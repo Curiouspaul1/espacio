@@ -5,7 +5,7 @@ from pygame.locals import (
     RLEACCEL
 )
 
-
+enemy_beams = pygame.sprite.Group()
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, game_screen):
@@ -73,24 +73,20 @@ class Explosion(pygame.sprite.Sprite):
 
 
 class EnemyBeams(pygame.sprite.Sprite):
-    def __init__(self, enemy, game_screen):
+    def __init__(self, enemy_rect, game_screen):
         super().__init__()
         self.game_screen = game_screen
-        self.enemy = enemy
+        self.enemy_rect = enemy_rect
         self.surf = pygame.image.load('assets/beams1.png')
-        self.rect = enemy.surf.get_rect(
+        self.rect = self.surf.get_rect(
             center = (
-                enemy.rect.x+(self.surf.get_width()*2),
-                enemy.rect.y+(self.surf.get_height()*2)
+                enemy_rect.x+(self.surf.get_width()*2),
+                enemy_rect.y+(self.surf.get_height()*2)
             )
         )
         self.speed = 14
     
     def update(self):
-        self.rect.center = (
-            self.enemy.rect.x+(self.surf.get_width()*2),
-            self.enemy.rect.y+(self.surf.get_height()*2)
-        )
         self.rect.move_ip(0, self.speed)
         if self.rect.bottom > self.game_screen[1]:
             self.kill()
@@ -108,9 +104,9 @@ class Enemy(pygame.sprite.Sprite):
                 0   #made it so that the enemies come out the top of the screen
             )
         )
+        self.beam = None
         self.speed_y = 3
         self.speed_x = random.choice([3.5, -3.5, 0])#the x-movement can either be forward, backward or stagnant
-        self.beam = EnemyBeams(enemy=self, game_screen=self.game_screen)
     
     def update(self):
         #i also changed this function...so that diagonally moving enemies wont just falloff
@@ -123,8 +119,18 @@ class Enemy(pygame.sprite.Sprite):
             self.rect.x = 0
         if self.rect.x < 0:
             self.rect.x = self.game_screen[0]
-        # self.beam.update()
+    
+    def generateBeams(self, pos):
+        self.beam = EnemyBeams(enemy_rect=pos, game_screen=self.game_screen)
+        enemy_beams.add(self.beam)
 
+
+class EnemyGroup(pygame.sprite.Group):
+    def generateBeams(self, *args, **kwargs):
+        print("working")
+        """
+        Generates beams from enemy sprites
+        """
 
 class Missile(pygame.sprite.Sprite):
     def __init__(self, player):
