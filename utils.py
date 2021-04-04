@@ -9,7 +9,7 @@ enemy_beams = pygame.sprite.Group()
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, game_screen):
-        super().__init__()
+        pygame.sprite.Sprite.__init__(self)
         self.game_screen = game_screen
         self.surf = pygame.image.load('assets/jet.png').convert()
         self.surf.set_colorkey((0, 0, 0), RLEACCEL)
@@ -74,7 +74,7 @@ class Explosion(pygame.sprite.Sprite):
 
 class EnemyBeams(pygame.sprite.Sprite):
     def __init__(self, enemy_rect, game_screen):
-        super().__init__()
+        pygame.sprite.Sprite.__init__(self)
         self.game_screen = game_screen
         self.enemy_rect = enemy_rect
         self.surf = pygame.image.load('assets/beams1.png')
@@ -94,7 +94,7 @@ class EnemyBeams(pygame.sprite.Sprite):
 
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, game_screen):
-        super().__init__()
+        pygame.sprite.Sprite.__init__(self)
         self.game_screen = game_screen
         self.surf = pygame.image.load(f'assets/alien0{random.randint(1,4)}.png').convert()
         self.surf.set_colorkey((0,  0, 0), RLEACCEL)
@@ -105,7 +105,7 @@ class Enemy(pygame.sprite.Sprite):
             )
         )
         self.beam = None
-        self.speed_y = 3
+        self.speed_y = 5
         self.speed_x = random.choice([3.5, -3.5, 0])#the x-movement can either be forward, backward or stagnant
     
     def update(self):
@@ -134,7 +134,7 @@ class EnemyGroup(pygame.sprite.Group):
 
 class Missile(pygame.sprite.Sprite):
     def __init__(self, player):
-        super().__init__()
+        pygame.sprite.Sprite.__init__(self)
         self.surf = pygame.image.load('assets/missile1.png')
         self.surf.set_colorkey((255, 255, 255), RLEACCEL)
         self.rect = self.surf.get_rect(
@@ -153,7 +153,7 @@ class Missile(pygame.sprite.Sprite):
 
 class hearts(pygame.sprite.Sprite):
     def __init__(self, pos):
-        super().__init__()
+        pygame.sprite.Sprite.__init__(self)
         self.surf = pygame.image.load("assets/heart01.png").convert()
         self.surf.set_colorkey((0, 0, 0), RLEACCEL)
         self.rect = self.surf.get_rect(

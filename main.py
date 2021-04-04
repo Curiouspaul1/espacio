@@ -30,7 +30,7 @@ player = Player(game_screen=size)
 # create custom game events
 ADDENEMY = pygame.USEREVENT + 1
 SHOOTENEMYBEAMS = pygame.USEREVENT + 2
-pygame.time.set_timer(SHOOTENEMYBEAMS, 5200)
+pygame.time.set_timer(SHOOTENEMYBEAMS, 200)
 pygame.time.set_timer(ADDENEMY, 3000)
 
 #initializing a sound mixer for 16-bit 44100hz steoreo
@@ -67,12 +67,8 @@ while running:
             all_enemies.add(enemies)
             all_sprites.add(enemies)
         elif event.type == SHOOTENEMYBEAMS:
-            count = 1
-            while count < 4:
-                print(enemy.surf.get_rect())
-                enemy.generateBeams(pos=enemy.surf.get_rect())
-                count += 1
-            print("Done")
+            for enemy in all_enemies:
+                enemy.generateBeams(enemy.rect)
 
     if not isPlayerkilled:
         # add  player to sprite group
