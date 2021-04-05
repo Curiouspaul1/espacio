@@ -9,6 +9,7 @@ from utils import (
     enemy_beams
 )
 from helpers import spawnEnemies
+import random
 
 # initialize pygame
 pygame.init()
@@ -30,7 +31,7 @@ player = Player(game_screen=size)
 # create custom game events
 ADDENEMY = pygame.USEREVENT + 1
 SHOOTENEMYBEAMS = pygame.USEREVENT + 2
-pygame.time.set_timer(SHOOTENEMYBEAMS, 200)
+pygame.time.set_timer(SHOOTENEMYBEAMS, random.randint(200, 400))
 pygame.time.set_timer(ADDENEMY, 3000)
 
 #initializing a sound mixer for 16-bit 44100hz steoreo
@@ -42,6 +43,7 @@ running = True
 
 # create lives
 lives = [hearts(pos=(i, 20)) for i in range(10, 70, 20)]
+no_of_lives = 3
 
 isPlayerkilled = False
 lives_left = False
@@ -70,14 +72,9 @@ while running:
             for enemy in all_enemies:
                 enemy.generateBeams(enemy.rect)
 
-    if not isPlayerkilled:
-        # add  player to sprite group
-        all_sprites.add(player)
-    
+    # add  player to sprite group
+    all_sprites.add(player)
     all_sprites.add(lives)
-
-    if pygame.sprite.spritecollideany(player, all_enemies):
-        lives[-1].kill()
 
     # block transfer to game screen
     for i in all_sprites:
@@ -100,6 +97,7 @@ while running:
     # update missiles
     all_missiles.update()
 
+    # player collisions
 
     # check to see if enemy collides with player missiles and explosion
     enemy_collide = pygame.sprite.groupcollide(
@@ -113,6 +111,7 @@ while running:
 
     explosions.draw(screen)
     explosions.update()
+        
 
     # # # check to see if player still has lives
     # if len(player.lives) == 0:
@@ -121,5 +120,16 @@ while running:
     #     #running = False
 
     pygame.display.flip()
+
+    # player collision with beam
+    beam = pygame.sprite.spritecollideany(player, enemy_beams)
+    if beam:
+        beam.kill()
+        print(no_of_lives)
+        lives = lives[:no_of_lives]
+        pygame.display.flip()
+        print(len(lives))
+        if no_of_lives > 0:
+            no_of_lives -= 1
 
     clock.tick(30)

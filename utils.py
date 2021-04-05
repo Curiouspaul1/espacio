@@ -105,7 +105,7 @@ class Enemy(pygame.sprite.Sprite):
             )
         )
         self.beam = None
-        self.speed_y = 5
+        self.speed_y = random.randint(3, 5)
         self.speed_x = random.choice([3.5, -3.5, 0])#the x-movement can either be forward, backward or stagnant
     
     def update(self):
