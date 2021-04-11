@@ -27,6 +27,8 @@ explosions = pygame.sprite.Group()
 
 # create player instance
 player = Player(game_screen=size)
+lives = [hearts(pos=(i, 20)) for i in range(10, 70, 20)]
+no_of_lives = 3
 
 # create custom game events
 ADDENEMY = pygame.USEREVENT + 1
@@ -38,15 +40,10 @@ pygame.time.set_timer(ADDENEMY, 3000)
 pygame.mixer.pre_init(44100, 16, 2, 4096)
 gunShotSound = pygame.mixer.Sound('assets/Gun+Silencer.wav')
 
+isPlayerkilled = False
+
 # Game loop
 running = True
-
-# create lives
-lives = [hearts(pos=(i, 20)) for i in range(10, 70, 20)]
-no_of_lives = 3
-
-isPlayerkilled = False
-lives_left = False
 
 clock = pygame.time.Clock()
 
@@ -73,8 +70,9 @@ while running:
                 enemy.generateBeams(enemy.rect)
 
     # add  player to sprite group
-    all_sprites.add(player)
-    all_sprites.add(lives)
+    if isPlayerkilled is False:
+        all_sprites.add(player)
+    all_sprites.add(lives[:no_of_lives])
 
     # block transfer to game screen
     for i in all_sprites:
@@ -97,7 +95,16 @@ while running:
     # update missiles
     all_missiles.update()
 
-    # player collisions
+    # enemy colliding with other enemies
+    for enemy in all_enemies:
+        if pygame.sprite.spritecollide(enemy, all_enemies, False):
+            _collided = pygame.sprite.spritecollide(enemy, all_enemies, False)
+            if _collided[0].rect.x > enemy.rect.x:
+                _collided[0].rect.move_ip(_collided[0].rect.x + 3, 0)
+                enemy.rect.move_ip(-enemy.rect.x + random.randint(0, 2), 0)
+            if _collided[0].rect.x < enemy.rect.x:
+                _collided[0].rect.move_ip(-_collided[0].rect.x + random.randint(0, 2), 0)
+                enemy.rect.move_ip(enemy.rect.x + 3, 0)
 
     # check to see if enemy collides with player missiles and explosion
     enemy_collide = pygame.sprite.groupcollide(
@@ -111,25 +118,24 @@ while running:
 
     explosions.draw(screen)
     explosions.update()
-        
-
-    # # # check to see if player still has lives
-    # if len(player.lives) == 0:
-    #     isPlayerkilled = True
-    #     lives_left = False
-    #     #running = False
-
-    pygame.display.flip()
 
     # player collision with beam
     beam = pygame.sprite.spritecollideany(player, enemy_beams)
     if beam:
         beam.kill()
         print(no_of_lives)
-        lives = lives[:no_of_lives]
-        pygame.display.flip()
-        print(len(lives))
+        print(lives[:no_of_lives])
         if no_of_lives > 0:
             no_of_lives -= 1
+            for life in lives:
+                life.kill()
+
+    # check to see if player still has lives
+    if no_of_lives == 0:
+        isPlayerkilled = True
+        player.kill()
+        #running = False
+
+    pygame.display.flip()
 
     clock.tick(30)
